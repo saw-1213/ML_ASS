@@ -204,7 +204,7 @@ class SmartVentilationEnv(gym.Env):
 # 2. THE DASHBOARD UI
 # =========================================================================
 
-st.set_page_config(page_title="Smart Ventilation Digital Twin", layout="wide", page_icon="🌬️")
+st.set_page_config(page_title="Smart Ventilation System", layout="wide", page_icon="🌬️")
 
 st.markdown("""
 <style>
