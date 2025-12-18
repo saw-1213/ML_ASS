@@ -256,7 +256,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.title("🍳 Smart Ventilation System")
+st.title("🍳 Smart Ventilation ")
 
 # ---------------------------------------------------------------------
 # 📂 SMART SIDEBAR
