@@ -504,10 +504,10 @@ while st.session_state.playing and st.session_state.model:
     if cooking or fan_on: is_busy = True
     
     if is_busy:
-        batch_size = 1
-        current_delay = 0.2 
+        batch_size = 2
+        current_delay = 0.1 
     else:
-        batch_size = 20 
+        batch_size = 30 
         current_delay = turbo_speed
 
     for _ in range(batch_size):
