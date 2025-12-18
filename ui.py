@@ -204,7 +204,7 @@ class SmartVentilationEnv(gym.Env):
 # 2. THE DASHBOARD UI
 # =========================================================================
 
-st.set_page_config(page_title="Smart Ventilation System2", layout="wide", page_icon="🌬️")
+st.set_page_config(page_title="Smart Ventilation System", layout="wide", page_icon="🌬️")
 
 st.markdown("""
 <style>
@@ -256,7 +256,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.title("🍳 Smart Ventilation ")
+st.title("🍳 Smart Ventilation System")
 
 # ---------------------------------------------------------------------
 # 📂 SMART SIDEBAR
@@ -505,9 +505,9 @@ while st.session_state.playing and st.session_state.model:
     
     if is_busy:
         batch_size = 1
-        current_delay = 0.5 
+        current_delay = 0.2 
     else:
-        batch_size = 10 
+        batch_size = 20 
         current_delay = turbo_speed
 
     for _ in range(batch_size):
