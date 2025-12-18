@@ -505,9 +505,9 @@ while st.session_state.playing and st.session_state.model:
     
     if is_busy:
         batch_size = 2
-        current_delay = 0.1 
+        current_delay = 0.2 
     else:
-        batch_size = 30 
+        batch_size = 25
         current_delay = turbo_speed
 
     for _ in range(batch_size):
