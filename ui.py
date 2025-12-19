@@ -576,14 +576,14 @@ if not st.session_state.playing and st.session_state.day_results:
     st.markdown("### 🛡️ Safety Summary")
     c1, c2, c3 = st.columns(3)
     c1.metric("Total Days Evaluated", f"{len(df_res)}")
-    c2.metric("Avg Unsafe Steps/Day", f"{df_res['Unsafe Steps'].mean():.1f}", 
-              delta="Lower is better", delta_color="inverse")
+    unsafe_val = df_res['Unsafe Steps'].mean()
+    c2.metric("Avg Unsafe Steps/Day", f"{unsafe_val:.1f}", 
+              help="Target: 0 steps (Lower is better)")
     
-    # 🔥 FIX: Now showing the Average of the TOTAL Daily Scores
-    # (e.g. Day 1: 1300, Day 2: 1350 -> Avg: 1325)
+    # Reward Logic
     avg_total_rew = df_res['Total Reward'].mean()
     c3.metric("Avg Daily Score", f"{avg_total_rew:.0f}", 
-              delta="Higher is better")
+              help="Higher is better")
     
     st.divider()
     
