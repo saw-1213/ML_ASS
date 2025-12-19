@@ -494,7 +494,6 @@ update_dashboard(is_busy_mode=False)
 # =========================================================================
 while st.session_state.playing and st.session_state.model:
     
-    # 0. Safety Check: If config changed mid-run to something impossible
     if st.session_state.current_day > num_days:
         st.session_state.playing = False
         st.warning("⚠️ Simulation stopped: Days config changed.")
@@ -532,12 +531,14 @@ while st.session_state.playing and st.session_state.model:
         
         # --- MULTI-DAY LOGIC ---
         if terminated or truncated:
+            # ⬇️ HERE IS THE FIX ⬇️
             day_stats = {
                 "Day": st.session_state.current_day,
                 "Avg VOC": np.mean([x['voc'] for x in st.session_state.log]),
                 "Avg PM": np.mean([x['pm'] for x in st.session_state.log]),
                 "Avg CO2": np.mean([x['co2'] for x in st.session_state.log]),
-                "Avg Reward": np.mean([x.get('reward', 0) for x in st.session_state.log]),
+                # 🔥 CHANGED 'np.mean' TO 'sum'. We want the TOTAL score for the day.
+                "Total Reward": sum(x.get('reward', 0) for x in st.session_state.log), 
                 "Unsafe Steps": sum(1 for x in st.session_state.log if x['voc'] > 500)
             }
             st.session_state.day_results.append(day_stats)
@@ -549,6 +550,7 @@ while st.session_state.playing and st.session_state.model:
                 st.session_state.log = [{
                     "activity": "none", "fan_power": 0.0, "fan_speed_ratio": 0.0,
                     "reward_details": st.session_state.env._calculate_total_reward(),
+                    "reward": 0.0, # Reset reward tracker
                     "voc": 0.0, "pm": 0.0, "co2": 400.0
                 }]
                 break 
@@ -576,22 +578,21 @@ if not st.session_state.playing and st.session_state.day_results:
     c1.metric("Total Days Evaluated", f"{len(df_res)}")
     c2.metric("Avg Unsafe Steps/Day", f"{df_res['Unsafe Steps'].mean():.1f}", 
               delta="Lower is better", delta_color="inverse")
-    avg_rew = df_res['Avg Reward'].mean()
-    c3.metric("Avg Daily Reward", f"{avg_rew:.3f}", 
+    
+    # 🔥 FIX: Now showing the Average of the TOTAL Daily Scores
+    # (e.g. Day 1: 1300, Day 2: 1350 -> Avg: 1325)
+    avg_total_rew = df_res['Total Reward'].mean()
+    c3.metric("Avg Daily Score", f"{avg_total_rew:.0f}", 
               delta="Higher is better")
+    
     st.divider()
     
     # --- ROW 2: AIR QUALITY AVERAGES ---
     st.markdown("### 🌬️ Air Quality Averages")
     c4, c5, c6 = st.columns(3)
     
-    # 1. VOC
     c4.metric("Avg VOC", f"{df_res['Avg VOC'].mean():.1f} ppb")
-    
-    # 2. PM2.5 (Added)
     c5.metric("Avg PM2.5", f"{df_res['Avg PM'].mean():.1f} µg/m³")
-    
-    # 3. CO2 (Added)
     c6.metric("Avg CO2", f"{df_res['Avg CO2'].mean():.0f} ppm")
 
     
