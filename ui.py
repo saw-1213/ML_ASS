@@ -193,6 +193,7 @@ class SmartVentilationEnv(gym.Env):
             "fan_power": self._get_fan_power(self.fan_speed),
             "fan_speed_ratio": self.fan_speed,  # <--- Added this so the gauge works!
             "reward_details": reward_details,
+            "reward": reward,
             "voc": self.voc,
             "pm": self.pm,
             "co2": self.co2
@@ -383,11 +384,12 @@ if c3.button("🔁 RESET"):
 status_spot = st.empty() 
 st.markdown("---")
 
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3, col4, col5 = st.columns(5)
 with col1: m1_spot = st.empty()
 with col2: m2_spot = st.empty()
 with col3: m3_spot = st.empty()
 with col4: m4_spot = st.empty()
+with col5: m5_spot = st.empty()
 
 st.markdown("---")
 k_col, f_col = st.columns(2)
@@ -439,6 +441,9 @@ def update_dashboard(is_busy_mode=False):
                    delta="High" if pm_val > 35 else None, delta_color="inverse")
     
     m4_spot.metric("🌡️ CO2", f"{last['co2']:.0f}")
+    
+    r_val = last.get('reward', 0.0)
+    m5_spot.metric("🏆 Reward", f"{r_val:.3f}")
 
     # 3. KITCHEN VISUALS
     with k_spot.container():
@@ -532,6 +537,7 @@ while st.session_state.playing and st.session_state.model:
                 "Avg VOC": np.mean([x['voc'] for x in st.session_state.log]),
                 "Avg PM": np.mean([x['pm'] for x in st.session_state.log]),
                 "Avg CO2": np.mean([x['co2'] for x in st.session_state.log]),
+                "Avg Reward": np.mean([x.get('reward', 0) for x in st.session_state.log]),
                 "Unsafe Steps": sum(1 for x in st.session_state.log if x['voc'] > 500)
             }
             st.session_state.day_results.append(day_stats)
@@ -566,24 +572,26 @@ if not st.session_state.playing and st.session_state.day_results:
     
     # --- ROW 1: SAFETY SUMMARY ---
     st.markdown("### 🛡️ Safety Summary")
-    c1, c2 = st.columns(2)
+    c1, c2, c3 = st.columns(3)
     c1.metric("Total Days Evaluated", f"{len(df_res)}")
     c2.metric("Avg Unsafe Steps/Day", f"{df_res['Unsafe Steps'].mean():.1f}", 
               delta="Lower is better", delta_color="inverse")
-    
+    avg_rew = df_res['Avg Reward'].mean()
+    c3.metric("Avg Daily Reward", f"{avg_rew:.3f}", 
+              delta="Higher is better")
     st.divider()
     
     # --- ROW 2: AIR QUALITY AVERAGES ---
     st.markdown("### 🌬️ Air Quality Averages")
-    c3, c4, c5 = st.columns(3)
+    c4, c5, c6 = st.columns(3)
     
     # 1. VOC
-    c3.metric("Avg VOC", f"{df_res['Avg VOC'].mean():.1f} ppb")
+    c4.metric("Avg VOC", f"{df_res['Avg VOC'].mean():.1f} ppb")
     
     # 2. PM2.5 (Added)
-    c4.metric("Avg PM2.5", f"{df_res['Avg PM'].mean():.1f} µg/m³")
+    c5.metric("Avg PM2.5", f"{df_res['Avg PM'].mean():.1f} µg/m³")
     
     # 3. CO2 (Added)
-    c5.metric("Avg CO2", f"{df_res['Avg CO2'].mean():.0f} ppm")
+    c6.metric("Avg CO2", f"{df_res['Avg CO2'].mean():.0f} ppm")
 
     
