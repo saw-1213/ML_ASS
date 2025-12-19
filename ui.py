@@ -560,12 +560,33 @@ while st.session_state.playing and st.session_state.model:
 # =========================================================================
 if not st.session_state.playing and st.session_state.day_results:
     st.divider()
-    st.header("📊 Final Campaign Report")
+    st.header("📊 Evaluation Report")
     
     df_res = pd.DataFrame(st.session_state.day_results)
     
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Total Days", f"{len(df_res)}")
-    c2.metric("Avg Unsafe Steps/Day", f"{df_res['Unsafe Steps'].mean():.1f}", delta_color="inverse")
-    c3.metric("Avg VOC Level", f"{df_res['Avg VOC'].mean():.1f} ppb")
+    # --- ROW 1: SAFETY SUMMARY ---
+    st.markdown("### 🛡️ Safety Summary")
+    c1, c2 = st.columns(2)
+    c1.metric("Total Days Evaluated", f"{len(df_res)}")
+    c2.metric("Avg Unsafe Steps/Day", f"{df_res['Unsafe Steps'].mean():.1f}", 
+              delta="Lower is better", delta_color="inverse")
+    
+    st.divider()
+    
+    # --- ROW 2: AIR QUALITY AVERAGES ---
+    st.markdown("### 🌬️ Air Quality Averages")
+    c3, c4, c5 = st.columns(3)
+    
+    # 1. VOC
+    c3.metric("Avg VOC", f"{df_res['Avg VOC'].mean():.1f} ppb")
+    
+    # 2. PM2.5 (Added)
+    c4.metric("Avg PM2.5", f"{df_res['Avg PM'].mean():.1f} µg/m³")
+    
+    # 3. CO2 (Added)
+    c5.metric("Avg CO2", f"{df_res['Avg CO2'].mean():.0f} ppm")
+
+    # Optional: Display the raw data table at the bottom
+    with st.expander("🔎 View Daily Log Data"):
+        st.dataframe(df_res)
     
