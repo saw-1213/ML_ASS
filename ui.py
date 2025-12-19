@@ -586,7 +586,4 @@ if not st.session_state.playing and st.session_state.day_results:
     # 3. CO2 (Added)
     c5.metric("Avg CO2", f"{df_res['Avg CO2'].mean():.0f} ppm")
 
-    # Optional: Display the raw data table at the bottom
-    with st.expander("🔎 View Daily Log Data"):
-        st.dataframe(df_res)
     
